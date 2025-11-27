@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Shaddai | Aromas & Mas</title>
+    <title>Shaddai | Aromas & Deco</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 
@@ -39,6 +39,39 @@
             transition: background 0.3s, color 0.3s;
         }
 
+        /* PANTALLA DE BIENVENIDA (ARREGLADA) */
+        #welcome-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--bg-body);
+            z-index: 999999; /* Maxima prioridad */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease-out;
+        }
+        .welcome-logo {
+            font-family: 'Cinzel', serif;
+            font-size: 3rem;
+            color: var(--black);
+            margin-bottom: 10px;
+            animation: fadeIn 1.5s ease;
+            text-align: center;
+        }
+        .welcome-logo span { color: var(--gold); }
+        .welcome-sub {
+            font-size: 1.2rem;
+            color: var(--text);
+            opacity: 0.8;
+            letter-spacing: 2px;
+            animation: slideUp 1.5s ease;
+            text-align: center;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
         /* HEADER */
         header {
             background: var(--bg-card);
@@ -73,7 +106,6 @@
             position: fixed; top: 50%; right: 0; transform: translateY(-50%);
             display: flex; flex-direction: column; gap: 10px; z-index: 900;
         }
-        
         .float-btn {
             background: var(--gold); color: white; padding: 15px 12px;
             border-radius: 10px 0 0 10px; cursor: pointer;
@@ -84,7 +116,7 @@
         .float-btn i { font-size: 1.4rem; }
         .fc-badge { font-weight: bold; font-size: 0.8rem; margin-top: 2px; }
 
-        /* CATEGORIAS */
+        /* CATEGORIAS (PC) */
         .nav-strip {
             display: flex; gap: 10px; padding: 10px 20px;
             overflow-x: auto; background: var(--bg-card); white-space: nowrap;
@@ -96,6 +128,45 @@
             color: var(--text); text-transform: capitalize; font-size: 0.9rem;
         }
         .cat-btn.active { background: var(--gold); color: white; border-color: var(--gold); }
+
+        /* CATEGORIAS (MOVIL - DESPLEGABLE) */
+        .mob-cat-container {
+            display: none; /* Oculto en PC */
+            padding: 10px 15px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+        }
+        .mob-cat-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            color: var(--text);
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .mob-cat-dropdown {
+            display: none;
+            margin-top: 5px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            background: var(--bg-card);
+            overflow: hidden;
+        }
+        .mob-cat-item {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            color: var(--text);
+        }
+        .mob-cat-item.active {
+            background: var(--gold);
+            color: white;
+        }
 
         .control-bar {
             padding: 10px 20px; display: flex; justify-content: flex-end; gap: 5px; background: var(--bg-body);
@@ -124,15 +195,18 @@
             width: 100%; height: 100%; object-fit: cover; pointer-events: none; 
         }
 
-        /* CORAZON */
+        /* CORAZON ROJO/GRIS */
         .card-heart {
             position: absolute; top: 10px; left: 10px; z-index: 20;
-            background: rgba(255,255,255,0.8); width: 30px; height: 30px;
+            background: rgba(255,255,255,0.9); width: 35px; height: 35px;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; color: #ccc; transition: 0.2s;
+            cursor: pointer; color: #ccc; transition: all 0.2s;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            font-size: 1.2rem;
         }
-        .card-heart.liked { color: red; }
+        .card-heart.liked { 
+            color: red; 
+        }
         .card-heart i { pointer-events: none; }
 
         /* BADGES */
@@ -169,6 +243,10 @@
             .header-top { justify-content: center; }
             .card-img-area { height: 500px; }
             .grid[style*="--mob-cols: 2"] .card-img-area { height: 250px; }
+            
+            /* OCULTAR NAV PC, MOSTRAR MOVIL */
+            .nav-strip { display: none; }
+            .mob-cat-container { display: block; }
         }
 
         @media (min-width: 769px) {
@@ -200,47 +278,16 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 5000; align-items: center; justify-content: center; }
         .modal-content { background: var(--bg-card); color: var(--text); padding: 20px; width: 90%; max-width: 700px; border-radius: 10px; max-height: 80vh; overflow-y: auto; }
 
-        /* ESTILOS HERRAMIENTAS NUEVO DISEÑO (IZQ-DER) */
-        .tools-wrapper {
-            display: flex;
-            height: 400px;
-            gap: 20px;
-        }
-        .tools-menu {
-            width: 30%;
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .tool-btn {
-            text-align: left;
-            padding: 10px;
-            background: transparent;
-            border: none;
-            color: var(--text);
-            cursor: pointer;
-            font-weight: bold;
-            border-radius: 5px;
-        }
-        .tool-btn.active {
-            background: var(--gold);
-            color: white;
-        }
-        .tools-content-box {
-            width: 70%;
-            overflow-y: auto;
-            padding: 10px;
-        }
+        .tools-wrapper { display: flex; height: 400px; gap: 20px; }
+        .tools-menu { width: 30%; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; }
+        .tool-btn { text-align: left; padding: 10px; background: transparent; border: none; color: var(--text); cursor: pointer; font-weight: bold; border-radius: 5px; }
+        .tool-btn.active { background: var(--gold); color: white; }
+        .tools-content-box { width: 70%; overflow-y: auto; padding: 10px; }
         .tool-panel { display: none; }
         .tool-panel.active { display: block; }
 
-        /* ZOOM MODAL CON EFECTO LUPA PC */
         .zoom-content { background: transparent; box-shadow: none; width: auto; max-width: 800px; display: flex; justify-content: center; overflow: hidden; position: relative; }
-        .zoom-content img { 
-            max-width: 100%; max-height: 80vh; object-fit: contain; border-radius: 8px; background: white; padding: 5px; 
-            transition: transform 0.1s;
-        }
+        .zoom-content img { max-width: 100%; max-height: 80vh; object-fit: contain; border-radius: 8px; background: white; padding: 5px; }
 
         #ctx-menu { display: none; position: fixed; background: var(--bg-card); border: 1px solid var(--border); box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 9999; width: 180px; border-radius: 5px; }
         .ctx-option { padding: 10px 15px; cursor: pointer; border-bottom: 1px solid var(--border); font-size: 0.9rem; color: var(--text); }
@@ -257,18 +304,6 @@
         .pagination { display: flex; justify-content: center; gap: 10px; margin-top: 30px; }
         .page-btn { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); cursor: pointer; background: var(--bg-card); color: var(--text); }
         .page-btn.active { background: var(--black); color: var(--bg-body); }
-
-        #welcome-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--bg-body); z-index: 99999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.8s ease-out;
-        }
-        .welcome-logo { font-family: 'Cinzel', serif; font-size: 3rem; color: var(--black); margin-bottom: 10px; animation: fadeIn 1.5s ease; }
-        .welcome-logo span { color: var(--gold); }
-        .welcome-sub { font-size: 1.2rem; color: var(--text); opacity: 0.8; letter-spacing: 2px; animation: slideUp 1.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -306,6 +341,15 @@
     </header>
 
     <div class="nav-strip" id="cat-container"></div>
+
+    <div class="mob-cat-container" id="mob-cat-container">
+        <button class="mob-cat-btn" onclick="toggleMobCatMenu()">
+            <span id="mob-cat-label">Categoría: Todo</span>
+            <i class="fas fa-chevron-down"></i>
+        </button>
+        <div id="mob-cat-dropdown" class="mob-cat-dropdown">
+            </div>
+    </div>
 
     <div class="control-bar">
         <div style="display:flex; align-items:center; gap:5px;">
@@ -492,7 +536,6 @@
             }, 2000);
         });
 
-        // DATA
         onSnapshot(collection(db, "productos"), (snap) => {
             products = [];
             snap.forEach(d => products.push({id: d.id, ...d.data()}));
@@ -531,10 +574,19 @@
 
         function renderCategories() {
             const cats = currentConfig.categories.split(',').map(c=>c.trim());
-            const div = document.getElementById('cat-container');
-            div.innerHTML = `<button class="cat-btn ${currentFilter==='all'?'active':''}" onclick="setFilter('all', this)">Todo</button>`;
+            const divPC = document.getElementById('cat-container');
+            const divMob = document.getElementById('mob-cat-dropdown');
+            
+            // PC Render
+            divPC.innerHTML = `<button class="cat-btn ${currentFilter==='all'?'active':''}" onclick="setFilter('all', this)">Todo</button>`;
+            // Mob Render
+            divMob.innerHTML = `<div class="mob-cat-item ${currentFilter==='all'?'active':''}" onclick="setMobFilter('all')">Todo</div>`;
+
             cats.forEach(c => {
-                if(c) div.innerHTML += `<button class="cat-btn ${currentFilter===c?'active':''}" onclick="setFilter('${c}', this)">${c}</button>`;
+                if(c) {
+                    divPC.innerHTML += `<button class="cat-btn ${currentFilter===c?'active':''}" onclick="setFilter('${c}', this)">${c}</button>`;
+                    divMob.innerHTML += `<div class="mob-cat-item ${currentFilter===c?'active':''}" onclick="setMobFilter('${c}')">${c}</div>`;
+                }
             });
         }
 
@@ -647,7 +699,7 @@
             if(favorites.includes(id)) favorites = favorites.filter(f=>f!==id);
             else favorites.push(id);
             localStorage.setItem('favs', JSON.stringify(favorites));
-            render();
+            render(); // Forzar re-render para ver el color rojo
         }
         window.toggleFavView = () => { favMode = !favMode; trashMode = false; render(); }
 
@@ -659,7 +711,6 @@
             saveCart();
         };
 
-        // ADMIN CONFIG
         window.toggleMaintenance = () => { tempConfig.paused = !tempConfig.paused; alert("Cambio pendiente. Toca GUARDAR GENERAL."); };
         window.toggleGlobalDarkMode = () => { tempConfig.darkMode = !tempConfig.darkMode; alert("Cambio pendiente. Toca GUARDAR GENERAL."); };
         window.toggleMobileCols = () => { tempConfig.mobileCols = (tempConfig.mobileCols === 1) ? 2 : 1; alert("Cambio pendiente. Toca GUARDAR GENERAL."); };
@@ -670,7 +721,6 @@
             alert("Configuración Guardada!");
         };
 
-        // PESTAÑAS HERRAMIENTAS
         window.switchToolTab = (id, btn) => {
             document.querySelectorAll('.tool-panel').forEach(p=>p.classList.remove('active'));
             document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('active'));
@@ -724,7 +774,11 @@
                 m.style.display = 'block'; m.style.top = e.clientY+'px'; m.style.left = e.clientX+'px';
             }
         });
-        window.addEventListener('click', () => { document.getElementById('ctx-menu').style.display='none'; document.getElementById('auto-box').innerHTML=""; });
+        window.addEventListener('click', () => { 
+            document.getElementById('ctx-menu').style.display='none'; 
+            document.getElementById('auto-box').innerHTML=""; 
+            document.getElementById('mob-cat-dropdown').style.display = 'none'; // Close mob menu on click outside
+        });
 
         window.loginGoogle = async () => { try{await signInWithPopup(auth,new GoogleAuthProvider());closeModal('auth-modal')}catch(e){alert(e.message)} };
         window.setFilter = (c,b) => { currentFilter=c; currentPage=1; renderCategories(); render(); };
@@ -736,25 +790,7 @@
             if(confirm("¿Seguro que quieres salir sin guardar?")) document.getElementById('form-modal').style.display='none';
         };
 
-        // ZOOM LUPA MOUSEOVER (SOLO PC EN MODAL)
-        window.openZoom = (src) => { 
-            const img = document.getElementById('zoom-img');
-            img.src = src;
-            document.getElementById('zoom-modal').style.display='flex';
-            
-            // Logica Zoom Hover
-            if(window.innerWidth > 768) {
-                img.onmousemove = (e) => {
-                    const {left, top, width, height} = img.getBoundingClientRect();
-                    const x = (e.clientX - left) / width * 100;
-                    const y = (e.clientY - top) / height * 100;
-                    img.style.transformOrigin = `${x}% ${y}%`;
-                    img.style.transform = "scale(2)";
-                };
-                img.onmouseleave = () => { img.style.transform = "scale(1)"; };
-            }
-        };
-
+        window.openZoom = (src) => { document.getElementById('zoom-img').src=src; document.getElementById('zoom-modal').style.display='flex'; };
         window.openDesc = (id) => { const p=products.find(x=>x.id===id); document.getElementById('d-title').innerText=p.nombre; document.getElementById('d-text').innerText=p.descripcion||""; document.getElementById('desc-modal').style.display='flex'; };
 
         window.changeQty = (id, change) => {
@@ -805,11 +841,9 @@
         window.applyGlobalDiscount = () => { const v=Number(document.getElementById('global-disc-val').value); if(confirm("Aplicar?")) products.forEach(p=>updateDoc(doc(db,"productos",p.id),{discount:v})); };
         window.removeGlobalDiscount = () => { if(confirm("Quitar?")) products.forEach(p=>updateDoc(doc(db,"productos",p.id),{discount:0})); };
         window.applyGlobalInflation = () => { const v=Number(document.getElementById('global-inf-val').value); if(confirm("Aplicar precios?")) products.forEach(p=>updateDoc(doc(db,"productos",p.id),{precio:Math.round(p.precio*(1+v/100))})); };
-        
         window.editProd = (id) => window.openForm(id);
         
         window.openForm = (id) => { 
-            // Llenar datalist
             const dl = document.getElementById('cat-list'); dl.innerHTML = "";
             currentConfig.categories.split(',').forEach(c => {
                 const opt = document.createElement('option'); opt.value = c.trim(); dl.appendChild(opt);
@@ -829,6 +863,18 @@
         window.trashProd = async(id,s) => await updateDoc(doc(db,"productos",id),{deleted:s});
         window.toggleStock = async(id,s) => await updateDoc(doc(db,"productos",id),{stock:s});
         window.toggleTrash = () => { trashMode=!trashMode; favMode=false; render(); };
+
+        // LOGICA MENU MOVIL
+        window.toggleMobCatMenu = () => {
+            const m = document.getElementById('mob-cat-dropdown');
+            m.style.display = m.style.display === 'block' ? 'none' : 'block';
+            event.stopPropagation();
+        }
+        window.setMobFilter = (c) => {
+            document.getElementById('mob-cat-label').innerText = "Categoría: " + c;
+            setFilter(c, null); // Reutiliza la funcion de filtro
+            document.getElementById('mob-cat-dropdown').style.display = 'none';
+        }
     </script>
 </body>
 </html>
