@@ -39,12 +39,12 @@
             transition: background 0.3s, color 0.3s;
         }
 
-        /* PANTALLA DE BIENVENIDA (ARREGLADA) */
+        /* PANTALLA DE BIENVENIDA */
         #welcome-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background-color: var(--bg-body);
-            z-index: 999999; /* Maxima prioridad */
+            z-index: 999999;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -112,7 +112,9 @@
             box-shadow: -2px 2px 10px rgba(0,0,0,0.2);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             position: relative; width: 50px;
+            transition: 0.2s;
         }
+        .float-btn.nav-fav-active { background: #e74c3c; }
         .float-btn i { font-size: 1.4rem; }
         .fc-badge { font-weight: bold; font-size: 0.8rem; margin-top: 2px; }
 
@@ -129,49 +131,20 @@
         }
         .cat-btn.active { background: var(--gold); color: white; border-color: var(--gold); }
 
-        /* CATEGORIAS (MOVIL - DESPLEGABLE) */
-        .mob-cat-container {
+        /* CATEGORIAS (MOVIL - SELECT) */
+        .mob-cat-select-container {
             display: none; /* Oculto en PC */
-            padding: 10px 15px;
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border);
-        }
-        .mob-cat-btn {
-            width: 100%;
-            padding: 10px;
+            padding: 10px 20px;
             background: var(--bg-body);
-            border: 1px solid var(--border);
-            border-radius: 5px;
-            color: var(--text);
-            font-weight: bold;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            cursor: pointer;
-        }
-        .mob-cat-dropdown {
-            display: none;
-            margin-top: 5px;
-            border: 1px solid var(--border);
-            border-radius: 5px;
-            background: var(--bg-card);
-            overflow: hidden;
-        }
-        .mob-cat-item {
-            padding: 12px;
-            border-bottom: 1px solid var(--border);
-            cursor: pointer;
-            color: var(--text);
-        }
-        .mob-cat-item.active {
-            background: var(--gold);
-            color: white;
+            gap: 10px;
         }
 
         .control-bar {
             padding: 10px 20px; display: flex; justify-content: flex-end; gap: 5px; background: var(--bg-body);
         }
-        .sort-select { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); padding: 5px; border-radius: 5px; }
+        .sort-select { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); padding: 5px; border-radius: 5px; width: 100%; }
 
         /* GRILLA */
         .container { max-width: 1200px; margin: 0 auto; padding: 15px; flex: 1; width: 100%; }
@@ -195,7 +168,6 @@
             width: 100%; height: 100%; object-fit: cover; pointer-events: none; 
         }
 
-        /* CORAZON ROJO/GRIS */
         .card-heart {
             position: absolute; top: 10px; left: 10px; z-index: 20;
             background: rgba(255,255,255,0.9); width: 35px; height: 35px;
@@ -204,12 +176,9 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             font-size: 1.2rem;
         }
-        .card-heart.liked { 
-            color: red; 
-        }
+        .card-heart.liked { color: red; }
         .card-heart i { pointer-events: none; }
 
-        /* BADGES */
         .badge-discount {
             position: absolute; top: 10px; right: 10px; background: #e74c3c; color: white;
             font-weight: bold; font-size: 0.8rem; padding: 4px 8px; border-radius: 4px; z-index: 10;
@@ -219,8 +188,16 @@
             font-weight: bold; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; z-index: 10;
         }
 
-        .card.sin-stock { filter: grayscale(1); opacity: 0.8; }
-        .card.sin-stock button, .card.sin-stock .card-heart { pointer-events: none; opacity: 0.5; }
+        /* SIN STOCK MODIFICADO */
+        .card.sin-stock .card-img-area { filter: grayscale(1); } /* Solo imagen gris */
+        .card.sin-stock .btn-buy { 
+            pointer-events: none; 
+            opacity: 0.5; 
+            background: #999; 
+            cursor: not-allowed;
+        }
+        /* Descripcion y corazon siguen funcionando */
+        
         .stock-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg);
             background: rgba(0,0,0,0.8); color: white; font-size: 1.5rem; font-weight: bold;
@@ -244,13 +221,14 @@
             .card-img-area { height: 500px; }
             .grid[style*="--mob-cols: 2"] .card-img-area { height: 250px; }
             
-            /* OCULTAR NAV PC, MOSTRAR MOVIL */
+            /* OCULTAR NAV PC, MOSTRAR MOVIL SELECT */
             .nav-strip { display: none; }
-            .mob-cat-container { display: block; }
+            .mob-cat-select-container { display: flex; }
         }
 
         @media (min-width: 769px) {
             .bottom-nav { display: none !important; }
+            .mob-cat-select-container { display: none !important; }
             header { flex-direction: row; }
             .search-container { max-width: 400px; margin: 0 20px; }
             .card-img-area { height: 300px; }
@@ -258,6 +236,7 @@
 
         footer { text-align: center; padding: 20px; background: var(--bg-card); color: var(--text); border-top: 1px solid var(--border); margin-top: auto; padding-bottom: 80px; }
         
+        /* BOTTOM NAV */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
             background: var(--bg-card); border-top: 1px solid var(--border);
@@ -265,7 +244,10 @@
             z-index: 900;
         }
         .bn-item { display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; color: var(--text); gap: 3px; cursor: pointer; user-select: none; position: relative; }
-        .bn-item i { font-size: 1.2rem; }
+        .bn-item i { font-size: 1.2rem; transition: color 0.2s; }
+        
+        .bn-item.nav-fav-active i { color: red; }
+        .bn-item.nav-fav-active span { color: red; font-weight: bold; }
         
         .mob-badge {
             background: red; color: white; font-size: 0.65rem; font-weight: bold;
@@ -325,7 +307,7 @@
             <i class="fas fa-shopping-bag"></i>
             <span class="fc-badge" id="pc-cart-count">0</span>
         </div>
-        <div class="float-btn" onclick="toggleFavView()">
+        <div class="float-btn" id="fav-btn-pc" onclick="toggleFavView()">
             <i class="fas fa-heart"></i>
         </div>
     </div>
@@ -342,13 +324,10 @@
 
     <div class="nav-strip" id="cat-container"></div>
 
-    <div class="mob-cat-container" id="mob-cat-container">
-        <button class="mob-cat-btn" onclick="toggleMobCatMenu()">
-            <span id="mob-cat-label">Categoría: Todo</span>
-            <i class="fas fa-chevron-down"></i>
-        </button>
-        <div id="mob-cat-dropdown" class="mob-cat-dropdown">
-            </div>
+    <div class="mob-cat-select-container">
+        <span style="white-space:nowrap; font-weight:bold;">Categoría:</span>
+        <select id="mob-cat-select" class="sort-select" onchange="setFilter(this.value, null)">
+            </select>
     </div>
 
     <div class="control-bar">
@@ -384,7 +363,7 @@
             <span>Carrito</span>
             <div id="mob-cart-count" class="mob-badge" style="display:none;">0</div>
         </div>
-        <div class="bn-item" onclick="toggleFavView()">
+        <div class="bn-item" id="fav-btn-mob" onclick="toggleFavView()">
             <i class="fas fa-heart"></i>
             <span>Favoritos</span>
         </div>
@@ -536,6 +515,7 @@
             }, 2000);
         });
 
+        // DATA
         onSnapshot(collection(db, "productos"), (snap) => {
             products = [];
             snap.forEach(d => products.push({id: d.id, ...d.data()}));
@@ -575,19 +555,21 @@
         function renderCategories() {
             const cats = currentConfig.categories.split(',').map(c=>c.trim());
             const divPC = document.getElementById('cat-container');
-            const divMob = document.getElementById('mob-cat-dropdown');
+            const selectMob = document.getElementById('mob-cat-select');
             
-            // PC Render
+            // PC
             divPC.innerHTML = `<button class="cat-btn ${currentFilter==='all'?'active':''}" onclick="setFilter('all', this)">Todo</button>`;
-            // Mob Render
-            divMob.innerHTML = `<div class="mob-cat-item ${currentFilter==='all'?'active':''}" onclick="setMobFilter('all')">Todo</div>`;
+            
+            // MOVIL
+            selectMob.innerHTML = `<option value="all">Todo</option>`;
 
             cats.forEach(c => {
                 if(c) {
                     divPC.innerHTML += `<button class="cat-btn ${currentFilter===c?'active':''}" onclick="setFilter('${c}', this)">${c}</button>`;
-                    divMob.innerHTML += `<div class="mob-cat-item ${currentFilter===c?'active':''}" onclick="setMobFilter('${c}')">${c}</div>`;
+                    selectMob.innerHTML += `<option value="${c}">${c}</option>`;
                 }
             });
+            selectMob.value = currentFilter;
         }
 
         function render() {
@@ -699,9 +681,17 @@
             if(favorites.includes(id)) favorites = favorites.filter(f=>f!==id);
             else favorites.push(id);
             localStorage.setItem('favs', JSON.stringify(favorites));
-            render(); // Forzar re-render para ver el color rojo
+            render();
         }
-        window.toggleFavView = () => { favMode = !favMode; trashMode = false; render(); }
+        window.toggleFavView = () => {
+            favMode = !favMode;
+            trashMode = false;
+            const pcBtn = document.getElementById('fav-btn-pc');
+            const mobBtn = document.getElementById('fav-btn-mob');
+            if(favMode) { pcBtn.classList.add('nav-fav-active'); mobBtn.classList.add('nav-fav-active'); } 
+            else { pcBtn.classList.remove('nav-fav-active'); mobBtn.classList.remove('nav-fav-active'); }
+            render();
+        }
 
         window.addToCart = (id) => {
             const p = products.find(x => x.id === id);
@@ -777,7 +767,6 @@
         window.addEventListener('click', () => { 
             document.getElementById('ctx-menu').style.display='none'; 
             document.getElementById('auto-box').innerHTML=""; 
-            document.getElementById('mob-cat-dropdown').style.display = 'none'; // Close mob menu on click outside
         });
 
         window.loginGoogle = async () => { try{await signInWithPopup(auth,new GoogleAuthProvider());closeModal('auth-modal')}catch(e){alert(e.message)} };
@@ -863,18 +852,6 @@
         window.trashProd = async(id,s) => await updateDoc(doc(db,"productos",id),{deleted:s});
         window.toggleStock = async(id,s) => await updateDoc(doc(db,"productos",id),{stock:s});
         window.toggleTrash = () => { trashMode=!trashMode; favMode=false; render(); };
-
-        // LOGICA MENU MOVIL
-        window.toggleMobCatMenu = () => {
-            const m = document.getElementById('mob-cat-dropdown');
-            m.style.display = m.style.display === 'block' ? 'none' : 'block';
-            event.stopPropagation();
-        }
-        window.setMobFilter = (c) => {
-            document.getElementById('mob-cat-label').innerText = "Categoría: " + c;
-            setFilter(c, null); // Reutiliza la funcion de filtro
-            document.getElementById('mob-cat-dropdown').style.display = 'none';
-        }
     </script>
 </body>
 </html>
