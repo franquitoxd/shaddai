@@ -133,7 +133,7 @@
 
         /* CATEGORIAS (MOVIL - SELECT) */
         .mob-cat-select-container {
-            display: none; /* Oculto en PC */
+            display: none;
             padding: 10px 20px;
             background: var(--bg-body);
             display: flex;
@@ -188,15 +188,14 @@
             font-weight: bold; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; z-index: 10;
         }
 
-        /* SIN STOCK MODIFICADO */
-        .card.sin-stock .card-img-area { filter: grayscale(1); } /* Solo imagen gris */
+        /* SIN STOCK */
+        .card.sin-stock .card-img-area { filter: grayscale(1); } 
         .card.sin-stock .btn-buy { 
             pointer-events: none; 
             opacity: 0.5; 
             background: #999; 
             cursor: not-allowed;
         }
-        /* Descripcion y corazon siguen funcionando */
         
         .stock-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg);
@@ -220,8 +219,6 @@
             .header-top { justify-content: center; }
             .card-img-area { height: 500px; }
             .grid[style*="--mob-cols: 2"] .card-img-area { height: 250px; }
-            
-            /* OCULTAR NAV PC, MOSTRAR MOVIL SELECT */
             .nav-strip { display: none; }
             .mob-cat-select-container { display: flex; }
         }
@@ -236,7 +233,6 @@
 
         footer { text-align: center; padding: 20px; background: var(--bg-card); color: var(--text); border-top: 1px solid var(--border); margin-top: auto; padding-bottom: 80px; }
         
-        /* BOTTOM NAV */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
             background: var(--bg-card); border-top: 1px solid var(--border);
@@ -434,7 +430,12 @@
             <input type="text" id="p-cat" class="admin-input" list="cat-list">
             <datalist id="cat-list"></datalist>
 
-            <label>Imagen URL:</label> <input type="text" id="p-img" class="admin-input">
+            <label>Subir Imagen (Galería):</label>
+            <input type="file" id="p-file" class="admin-input" accept="image/*">
+            
+            <label>O URL de Imagen:</label> 
+            <input type="text" id="p-img" class="admin-input" placeholder="https://...">
+            
             <label>Descripción:</label> <textarea id="p-desc" class="admin-input"></textarea>
             
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; background:rgba(0,0,0,0.05); padding:10px;">
@@ -557,10 +558,7 @@
             const divPC = document.getElementById('cat-container');
             const selectMob = document.getElementById('mob-cat-select');
             
-            // PC
             divPC.innerHTML = `<button class="cat-btn ${currentFilter==='all'?'active':''}" onclick="setFilter('all', this)">Todo</button>`;
-            
-            // MOVIL
             selectMob.innerHTML = `<option value="all">Todo</option>`;
 
             cats.forEach(c => {
@@ -843,12 +841,33 @@
             document.getElementById('form-modal').style.display='flex';
         };
         
+        // SAVE PRODUCT (BASE64 OR URL)
         window.saveProduct = async () => {
             const id=document.getElementById('p-id').value;
-            const d={nombre:document.getElementById('p-name').value, precio:Number(document.getElementById('p-price').value), categoria:document.getElementById('p-cat').value, image:document.getElementById('p-img').value, descripcion:document.getElementById('p-desc').value, soldCount:Number(document.getElementById('p-sold').value), featured: document.getElementById('p-featured').checked, stock:true, deleted:false};
-            if(id) await updateDoc(doc(db,"productos",id),d); else await addDoc(collection(db,"productos"),d);
-            document.getElementById('form-modal').style.display='none'; 
+            const file = document.getElementById('p-file').files[0];
+            const name = document.getElementById('p-name').value;
+            const price = Number(document.getElementById('p-price').value);
+            const cat = document.getElementById('p-cat').value;
+            const imgUrlInput = document.getElementById('p-img').value;
+            const desc = document.getElementById('p-desc').value;
+            const sold = Number(document.getElementById('p-sold').value);
+            const feat = document.getElementById('p-featured').checked;
+
+            const saveData = async (imgFinal) => {
+                const d = { nombre: name, precio: price, categoria: cat, image: imgFinal, descripcion: desc, soldCount: sold, featured: feat, stock: true, deleted: false };
+                if(id) await updateDoc(doc(db,"productos",id),d); else await addDoc(collection(db,"productos"),d);
+                document.getElementById('form-modal').style.display='none';
+            };
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => saveData(e.target.result);
+                reader.readAsDataURL(file);
+            } else {
+                saveData(imgUrlInput);
+            }
         };
+
         window.trashProd = async(id,s) => await updateDoc(doc(db,"productos",id),{deleted:s});
         window.toggleStock = async(id,s) => await updateDoc(doc(db,"productos",id),{stock:s});
         window.toggleTrash = () => { trashMode=!trashMode; favMode=false; render(); };
