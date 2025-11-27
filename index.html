@@ -233,6 +233,7 @@
 
         footer { text-align: center; padding: 20px; background: var(--bg-card); color: var(--text); border-top: 1px solid var(--border); margin-top: auto; padding-bottom: 80px; }
         
+        /* BOTTOM NAV */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
             background: var(--bg-card); border-top: 1px solid var(--border);
@@ -276,6 +277,8 @@
         .admin-input { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text); }
         
         .trash-exit-btn { background: var(--gold); color: white; padding: 15px; width: 100%; text-align: center; font-weight: bold; cursor: pointer; margin-bottom: 20px; border-radius: 5px; display: none; }
+        .trash-delete-all-btn { background: #e74c3c; color: white; padding: 10px; width: 100%; text-align: center; font-weight: bold; cursor: pointer; margin-bottom: 10px; border-radius: 5px; display: none; }
+        
         .cart-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding: 10px 0; }
         .cart-qty-ctrl { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.05); padding: 5px; border-radius: 5px; }
         .c-btn { width: 25px; height: 25px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; }
@@ -341,6 +344,7 @@
 
     <div class="container">
         <div id="trash-alert" class="trash-exit-btn" onclick="toggleTrash()">VOLVER A INICIO (SALIR DE PAPELERA)</div>
+        <div id="trash-clean-btn" class="trash-delete-all-btn" onclick="emptyTrash()">VACIAR PAPELERA (TODO)</div>
         <div id="grid" class="grid"></div>
         <div id="pagination" class="pagination"></div>
     </div>
@@ -432,7 +436,6 @@
 
             <label>Subir Imagen (Galería):</label>
             <input type="file" id="p-file" class="admin-input" accept="image/*">
-            
             <label>O URL de Imagen:</label> 
             <input type="text" id="p-img" class="admin-input" placeholder="https://...">
             
@@ -473,7 +476,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDoc, doc, updateDoc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDoc, doc, updateDoc, deleteDoc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const app = initializeApp({
             apiKey: "AIzaSyCtqvadYYEIq_i44sA34A6JPArTL6lV5yw",
@@ -572,6 +575,7 @@
 
         function render() {
             document.getElementById('trash-alert').style.display = trashMode ? 'block' : 'none';
+            document.getElementById('trash-clean-btn').style.display = trashMode ? 'block' : 'none';
             
             let list = products.filter(p => trashMode ? p.deleted : !p.deleted);
             
@@ -667,11 +671,19 @@
 
         function showAdminMenu(x, y, p) {
             const m = document.getElementById('ctx-menu');
-            m.innerHTML = `
-                <div class="ctx-option" onclick="editProd('${p.id}')">Editar</div>
-                <div class="ctx-option" onclick="toggleStock('${p.id}', ${!p.stock})">${p.stock===false?'Poner Stock':'Sin Stock'}</div>
-                <div class="ctx-option ctx-danger" onclick="trashProd('${p.id}', ${!p.deleted})">${p.deleted?'Restaurar':'Papelera'}</div>
-            `;
+            // Menú dinámico: Si está en papelera, muestra BORRAR PERMANENTE
+            if (p.deleted) {
+                m.innerHTML = `
+                    <div class="ctx-option" onclick="trashProd('${p.id}', false)">Restaurar</div>
+                    <div class="ctx-option ctx-danger" onclick="permDelete('${p.id}')">Borrar Permanente</div>
+                `;
+            } else {
+                m.innerHTML = `
+                    <div class="ctx-option" onclick="editProd('${p.id}')">Editar</div>
+                    <div class="ctx-option" onclick="toggleStock('${p.id}', ${!p.stock})">${p.stock===false?'Poner Stock':'Sin Stock'}</div>
+                    <div class="ctx-option ctx-danger" onclick="trashProd('${p.id}', true)">Papelera</div>
+                `;
+            }
             m.style.display = 'block'; m.style.top = y+'px'; m.style.left = x+'px';
         }
 
@@ -841,7 +853,7 @@
             document.getElementById('form-modal').style.display='flex';
         };
         
-        // SAVE PRODUCT (BASE64 OR URL)
+        // SAVE PRODUCT (REINICIA SI ES NUEVO)
         window.saveProduct = async () => {
             const id=document.getElementById('p-id').value;
             const file = document.getElementById('p-file').files[0];
@@ -855,8 +867,20 @@
 
             const saveData = async (imgFinal) => {
                 const d = { nombre: name, precio: price, categoria: cat, image: imgFinal, descripcion: desc, soldCount: sold, featured: feat, stock: true, deleted: false };
-                if(id) await updateDoc(doc(db,"productos",id),d); else await addDoc(collection(db,"productos"),d);
-                document.getElementById('form-modal').style.display='none';
+                if(id) {
+                    await updateDoc(doc(db,"productos",id),d);
+                    document.getElementById('form-modal').style.display='none'; // Close on edit
+                } else {
+                    await addDoc(collection(db,"productos"),d);
+                    // RESET FIELDS
+                    document.getElementById('p-name').value = "";
+                    document.getElementById('p-price').value = "";
+                    document.getElementById('p-img').value = "";
+                    document.getElementById('p-desc').value = "";
+                    document.getElementById('p-file').value = "";
+                    document.getElementById('p-featured').checked = false;
+                    alert("Producto agregado. Puedes agregar otro.");
+                }
             };
 
             if (file) {
@@ -869,6 +893,22 @@
         };
 
         window.trashProd = async(id,s) => await updateDoc(doc(db,"productos",id),{deleted:s});
+        
+        // BORRAR PERMANENTE (INDIVIDUAL)
+        window.permDelete = async(id) => {
+            if(confirm("¿ESTÁS SEGURO? Se borrará para siempre.")) {
+                await deleteDoc(doc(db, "productos", id));
+            }
+        };
+
+        // VACIAR PAPELERA (TODO)
+        window.emptyTrash = async() => {
+            if(confirm("¿BORRAR TODOS LOS PRODUCTOS DE LA PAPELERA?")) {
+                const toDelete = products.filter(p => p.deleted);
+                toDelete.forEach(async p => await deleteDoc(doc(db, "productos", p.id)));
+            }
+        };
+
         window.toggleStock = async(id,s) => await updateDoc(doc(db,"productos",id),{stock:s});
         window.toggleTrash = () => { trashMode=!trashMode; favMode=false; render(); };
     </script>
